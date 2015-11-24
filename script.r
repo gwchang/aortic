@@ -16,6 +16,7 @@ ix1 <- which(data$S1.Aortic.Stenosis == 1
   & data$S1.Rheumatic.AV == 0
   & data$S2.CPPD.Pseudogout.Chondrocalcinosis == 0  # S2.C
   & data$S2.SLE == 0                                # S2.E
+  & data$S2.RA == 0                                 # S2.D
   & data$S2.Psoriatic.Arthritis == 0                # S2.F
   & data$S2.Rheumatic.Fever == 0)                   # S2.J
 pid1 <- data$S1.Patient[ix1]

@@ -93,7 +93,7 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
     }
   }
   
-  headers <- c("Aortic Stenosis","Non-aortic Stenosis Match 1","Non-aortic Stenosis Match 2")
+  headers <- paste(c("Aortic Stenosis","Non-aortic Stenosis Match 1","Non-aortic Stenosis Match 2"),collapse=",")
   lines <- c(headers)
   for (ix in in_ix) {
     pid <- data$S1.Patient[ix]

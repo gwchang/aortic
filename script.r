@@ -25,7 +25,8 @@ print(pid0)
 write("group 1 patients", stdout())
 print(pid1)
 
-find_age <- function(in_ix, out_ix, filename) {
+
+find_age <- function(in_ix, out_ix, filename, nmatches = 2) {
   sampled_pid <- c()
   lines <- c()
   for (ix in in_ix) {
@@ -46,5 +47,46 @@ find_age <- function(in_ix, out_ix, filename) {
   close(f)
 }
 
+find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
+  sampled_pid <- c()
+  sampled_dict <- list()
+  for (i in c(1:nmatches)) {
+    for (ix in in_ix) {
+      pid <- data$S1.Patient[ix]
+      age <- data$S1.Age[ix]
+      matched_pid <- data$S1.Patient[out_ix][which(data$S1.Age[out_ix] == age)]
+      matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
+      if (length(matched_pid) > 0) {
+        selected_pid <- matched_pid[1]
+        pidstr <- as.character(pid)
+        if (!is.null(sampled_dict[[pidstr]])) {
+          #print(sampled_dict[[pidstr]])
+          sampled_dict[[pidstr]] <- c(sampled_dict[[pidstr]], selected_pid)
+        } else {
+          sampled_dict[[pidstr]] <- selected_pid
+        }
+        sampled_pid <- unique(c(sampled_pid, selected_pid))
+      }
+    }
+  }
+
+  lines <- c()
+  for (ix in in_ix) {
+    pid <- data$S1.Patient[ix]
+    selected_pid <- c()
+    pidstr <- as.character(pid)
+    if (!is.null(sampled_dict[[pidstr]])) {
+      selected_pid <- sampled_dict[[pidstr]]
+    }
+    line <- paste(c(pid,":",selected_pid),collapse=" ")
+    lines <- c(lines, line)
+  }
+  f <- file(filename)
+  writeLines(lines, f)
+  close(f)
+}
+
 find_age(in_ix = ix1, out_ix = ix0, "patient_group1_samples.txt")
 find_age(in_ix = ix0, out_ix = ix1, "patient_group0_samples.txt")
+find_age_even(in_ix = ix1, out_ix = ix0, "patient_group1_even_samples.txt")
+find_age_even(in_ix = ix0, out_ix = ix1, "patient_group0_even_samples.txt")

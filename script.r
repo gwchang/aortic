@@ -70,7 +70,7 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
     }
   }
 
-  for (age_diff_limit in c(1:5)) {
+  for (age_diff_limit in c(1:10)) {
     for (ix in in_ix) {
       pid <- data$S1.Patient[ix]
       pidstr <- as.character(pid)

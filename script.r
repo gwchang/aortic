@@ -32,7 +32,7 @@ find_age <- function(in_ix, out_ix, filename) {
     pid <- data$S1.Patient[ix]
     age <- data$S1.Age[ix]
     matched_pid <- data$S1.Patient[which(data$S1.Age[out_ix] == age)]
-    matched_pid <- matched_pid[!(sampled_pid %in% matched_pid)]
+    matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
     selected_pid <- matched_pid
     if (length(matched_pid) > 2) {
       selected_pid <- matched_pid[1:2]

@@ -92,16 +92,20 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
       }
     }
   }
-
-  lines <- c()
+  
+  headers <- c("Aortic Stenosis","Non-aortic Stenosis Match 1","Non-aortic Stenosis Match 2")
+  lines <- c(headers)
   for (ix in in_ix) {
     pid <- data$S1.Patient[ix]
     selected_pid <- c()
     pidstr <- as.character(pid)
+    rows <- rep("",2)
     if (!is.null(sampled_dict[[pidstr]])) {
       selected_pid <- sampled_dict[[pidstr]]
+      rows[1:length(selected_pid)] <- selected_pid
     }
-    line <- paste(c(pid,":",selected_pid),collapse=" ")
+    #line <- paste(c(pid,":",selected_pid),collapse=" ")
+    line <- paste(c(pid,rows),collapse=",")
     lines <- c(lines, line)
   }
   f <- file(filename)
@@ -111,5 +115,5 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
 
 find_age(in_ix = ix1, out_ix = ix0, "patient_group1_samples.txt")
 find_age(in_ix = ix0, out_ix = ix1, "patient_group0_samples.txt")
-find_age_even(in_ix = ix1, out_ix = ix0, "patient_group1_even_samples.txt")
-find_age_even(in_ix = ix0, out_ix = ix1, "patient_group0_even_samples.txt")
+find_age_even(in_ix = ix1, out_ix = ix0, "patient_group1_even_samples.csv")
+find_age_even(in_ix = ix0, out_ix = ix1, "patient_group0_even_samples.csv")

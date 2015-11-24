@@ -113,7 +113,8 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
   close(f)
 }
 
+#find_age(in_ix = ix0, out_ix = ix1, "patient_group0_samples.txt")
+#find_age_even(in_ix = ix0, out_ix = ix1, "patient_group0_even_samples.csv")
+
 find_age(in_ix = ix1, out_ix = ix0, "patient_group1_samples.txt")
-find_age(in_ix = ix0, out_ix = ix1, "patient_group0_samples.txt")
 find_age_even(in_ix = ix1, out_ix = ix0, "patient_group1_even_samples.csv")
-find_age_even(in_ix = ix0, out_ix = ix1, "patient_group0_even_samples.csv")

@@ -26,6 +26,8 @@ print(pid0)
 write("group 1 patients", stdout())
 print(pid1)
 
+# Set random number generator seed for reproducibility
+set.seed(001)
 
 find_age <- function(in_ix, out_ix, filename, nmatches = 2) {
   sampled_pid <- c()
@@ -35,7 +37,9 @@ find_age <- function(in_ix, out_ix, filename, nmatches = 2) {
     age <- data$S1.Age[ix]
     matched_pid <- data$S1.Patient[out_ix][which(data$S1.Age[out_ix] == age)]
     matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
-    selected_pid <- matched_pid
+
+    # Randomly sample
+    selected_pid <- sample(matched_pid)
     if (length(matched_pid) > 2) {
       selected_pid <- matched_pid[1:2]
     }
@@ -57,6 +61,7 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
       age <- data$S1.Age[ix]
       matched_pid <- data$S1.Patient[out_ix][which(data$S1.Age[out_ix] == age)]
       matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
+      matched_pid <- sample(matched_pid)
       if (length(matched_pid) > 0) {
         selected_pid <- matched_pid[1]
         pidstr <- as.character(pid)
@@ -80,6 +85,7 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
         age_diff <- abs(data$S1.Age[out_ix] - age)
         matched_pid <- data$S1.Patient[out_ix][which(age_diff == age_diff_limit)]
         matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
+        matched_pid <- sample(matched_pid)
         if (length(matched_pid) > 0) {
           selected_pid <- matched_pid[1]
           if (!is.null(sampled_dict[[pidstr]])) {

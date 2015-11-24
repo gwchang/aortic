@@ -70,6 +70,28 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
     }
   }
 
+  for (age_diff_limit in c(1:5)) {
+    for (ix in in_ix) {
+      pid <- data$S1.Patient[ix]
+      pidstr <- as.character(pid)
+      if (is.null(sampled_dict[[pidstr]]) || length(sampled_dict[[pidstr]]) < 2) {
+        age <- data$S1.Age[ix]
+        age_diff <- abs(data$S1.Age[out_ix] - age)
+        matched_pid <- data$S1.Patient[out_ix][which(age_diff == age_diff_limit)]
+        matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
+        if (length(matched_pid) > 0) {
+          selected_pid <- matched_pid[1]
+          if (!is.null(sampled_dict[[pidstr]])) {
+            sampled_dict[[pidstr]] <- c(sampled_dict[[pidstr]], selected_pid)
+          } else {
+            sampled_dict[[pidstr]] <- selected_pid
+          }
+          sampled_pid <- unique(c(sampled_pid, selected_pid))
+        }
+      }
+    }
+  }
+
   lines <- c()
   for (ix in in_ix) {
     pid <- data$S1.Patient[ix]

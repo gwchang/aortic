@@ -29,6 +29,13 @@ print(pid1)
 # Set random number generator seed for reproducibility
 set.seed(001)
 
+age_lookup <- list()
+for (i in c(1:nrow(data))) {
+  pidstr <- as.character(data$S1.Patient[i])
+  age <- data$S1.Age[i]
+  age_lookup[[pidstr]] <- age
+}
+
 find_age <- function(in_ix, out_ix, filename, nmatches = 2) {
   sampled_pid <- c()
   lines <- c()
@@ -59,36 +66,21 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
     for (ix in in_ix) {
       pid <- data$S1.Patient[ix]
       age <- data$S1.Age[ix]
-      matched_pid <- data$S1.Patient[out_ix][which(data$S1.Age[out_ix] == age)]
-      matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
-      matched_pid <- sample(matched_pid)
-      if (length(matched_pid) > 0) {
-        selected_pid <- matched_pid[1]
-        pidstr <- as.character(pid)
-        if (!is.null(sampled_dict[[pidstr]])) {
-          #print(sampled_dict[[pidstr]])
-          sampled_dict[[pidstr]] <- c(sampled_dict[[pidstr]], selected_pid)
-        } else {
-          sampled_dict[[pidstr]] <- selected_pid
-        }
-        sampled_pid <- unique(c(sampled_pid, selected_pid))
-      }
-    }
-  }
-
-  for (age_diff_limit in c(1:10)) {
-    for (ix in in_ix) {
-      pid <- data$S1.Patient[ix]
-      pidstr <- as.character(pid)
-      if (is.null(sampled_dict[[pidstr]]) || length(sampled_dict[[pidstr]]) < 2) {
-        age <- data$S1.Age[ix]
-        age_diff <- abs(data$S1.Age[out_ix] - age)
-        matched_pid <- data$S1.Patient[out_ix][which(age_diff == age_diff_limit)]
+      ix_age <- which(data$S1.Age[out_ix] == age)
+      if (length(ix_age) > 0) {
+        matched_pid <- data$S1.Patient[out_ix][ix_age]
         matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
-        matched_pid <- sample(matched_pid)
         if (length(matched_pid) > 0) {
+          matched_pid <- matched_pid[sample(1:length(matched_pid))]
+          #for (p in matched_pid) {
+          #  if (age_lookup[[as.character(p)]] != age) {
+          #    print(paste("wtf", p))
+          #  }
+          #}
           selected_pid <- matched_pid[1]
+          pidstr <- as.character(pid)
           if (!is.null(sampled_dict[[pidstr]])) {
+            #print(sampled_dict[[pidstr]])
             sampled_dict[[pidstr]] <- c(sampled_dict[[pidstr]], selected_pid)
           } else {
             sampled_dict[[pidstr]] <- selected_pid
@@ -98,6 +90,39 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
       }
     }
   }
+
+  # Check age differences
+  check_age_diff(age_lookup, sampled_dict)
+
+  for (age_diff_limit in c(1:10)) {
+    for (ix in in_ix) {
+      pid <- data$S1.Patient[ix]
+      pidstr <- as.character(pid)
+      if (is.null(sampled_dict[[pidstr]]) || length(sampled_dict[[pidstr]]) < 2) {
+        age <- data$S1.Age[ix]
+        #print(age)
+        age_diff <- abs(data$S1.Age[out_ix] - age)
+        ix_age_diff <- which(age_diff == age_diff_limit)
+        if (length(ix_age_diff) > 0) {
+          matched_pid <- data$S1.Patient[out_ix][ix_age_diff]
+          matched_pid <- matched_pid[!(matched_pid %in% sampled_pid)]
+          if (length(matched_pid) > 0) {
+            matched_pid <- matched_pid[sample(1:length(matched_pid))]
+            selected_pid <- matched_pid[1]
+            if (!is.null(sampled_dict[[pidstr]])) {
+              sampled_dict[[pidstr]] <- c(sampled_dict[[pidstr]], selected_pid)
+            } else {
+              sampled_dict[[pidstr]] <- selected_pid
+            }
+            sampled_pid <- unique(c(sampled_pid, selected_pid))
+          }
+        }
+      }
+    }
+  }
+
+  # Check age differences
+  check_age_diff(age_lookup, sampled_dict)
   
   headers <- paste(c("Aortic Stenosis","Non-aortic Stenosis Match 1","Non-aortic Stenosis Match 2"),collapse=",")
   lines <- c(headers)
@@ -117,6 +142,18 @@ find_age_even <- function(in_ix, out_ix, filename, nmatches = 2) {
   f <- file(filename)
   writeLines(lines, f)
   close(f)
+}
+
+check_age_diff <- function(age_lookup, sampled_dict) {
+  max_age_diff <- 0
+  for (ps in names(sampled_dict)) {
+    age <- age_lookup[[ps]]
+    sampled_age <- sapply(sampled_dict[[ps]], function(x) return(age_lookup[[as.character(x)]]))
+    #print(sampled_age)
+    max_age_diff <- max(c(max_age_diff, abs(sampled_age - age)))
+  }
+  msg <- paste(c("Max age difference in samples = ",max_age_diff),collapse="")
+  write(msg,stdout())
 }
 
 #find_age(in_ix = ix0, out_ix = ix1, "patient_group0_samples.txt")
